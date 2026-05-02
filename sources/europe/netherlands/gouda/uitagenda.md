@@ -3,7 +3,7 @@ title: Uitagenda Gouda
 poi: europe/netherlands/gouda
 url: https://www.uitingouda.nl/agenda
 interval_days: 3
-last_checked: null
+last_checked: 2026-05-02
 ---
 The main city-wide event agenda for Gouda. Lists concerts, theatre, markets,
 exhibitions and more across all venues.
