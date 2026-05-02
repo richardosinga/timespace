@@ -3,7 +3,7 @@ title: VVV Amersfoort Agenda
 poi: spacetime/europe/netherlands/amersfoort
 url: https://www.vvvamersfoort.nl/agenda
 interval_days: 7
-last_checked: null
+last_checked: 2026-05-02
 ---
 VVV Amersfoort is the official tourist board agenda for the city, listing
 cultural events, festivals, markets, guided tours, and other activities.
