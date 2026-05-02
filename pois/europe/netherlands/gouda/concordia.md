@@ -1,5 +1,5 @@
 ---
-title: Schouwburg Concordia
+title: De Goudse Schouwburg
 lat: 52.0127
 lng: 4.7098
 tags: [theatre, concert]

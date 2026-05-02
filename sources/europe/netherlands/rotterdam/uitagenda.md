@@ -1,7 +1,7 @@
 ---
-title: Uit in Rotterdam
+title: Uitagenda Rotterdam
 poi: europe/netherlands/rotterdam
-url: https://www.uitinrotterdam.nl/agenda
+url: https://www.uitagendarotterdam.nl/agenda/
 interval_days: 3
 last_checked: null
 ---
