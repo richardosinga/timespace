@@ -1,6 +1,6 @@
 ---
 title: "ONE LOVE: De Nacht van de Napolitaanse Pizza"
-poi: spacetime/bird-rotterdam
+poi: spacetime/europe/netherlands/rotterdam/bird
 date: 2026-06-20
 time_start: "17:00"
 category: food

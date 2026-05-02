@@ -1,6 +1,6 @@
 ---
 title: Morgan Heritage
-poi: spacetime/bird-rotterdam
+poi: spacetime/europe/netherlands/rotterdam/bird
 date: 2026-05-25
 time_start: "20:00"
 category: concert

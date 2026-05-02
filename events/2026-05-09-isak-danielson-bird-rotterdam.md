@@ -1,6 +1,6 @@
 ---
 title: Isak Danielson
-poi: spacetime/bird-rotterdam
+poi: spacetime/europe/netherlands/rotterdam/bird
 date: 2026-05-09
 time_start: "20:30"
 category: concert

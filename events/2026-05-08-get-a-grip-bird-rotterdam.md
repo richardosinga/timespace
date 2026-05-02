@@ -1,6 +1,6 @@
 ---
 title: Get a Grip with Capo Lee, Faultsz and more!
-poi: spacetime/bird-rotterdam
+poi: spacetime/europe/netherlands/rotterdam/bird
 date: 2026-05-08
 time_start: "23:00"
 time_end: "05:00"
