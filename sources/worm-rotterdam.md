@@ -3,7 +3,7 @@ title: WORM Rotterdam
 poi: spacetime/worm-rotterdam
 url: https://worm.org/agenda
 interval_days: 7
-last_checked: null
+last_checked: 2026-05-02
 ---
 Underground cultural centre in Rotterdam's city centre. Programmes experimental
 music, film, theatre, performance art and club nights. Known for avant-garde
