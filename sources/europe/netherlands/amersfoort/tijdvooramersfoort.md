@@ -3,7 +3,7 @@ title: Tijd voor Amersfoort
 poi: spacetime/europe/netherlands/amersfoort
 url: https://www.tijdvooramersfoort.nl/nl/evenementen/
 interval_days: 7
-last_checked: null
+last_checked: 2026-05-02
 ---
 Tijd voor Amersfoort is the city's general events agenda covering music,
 theatre, exhibitions, markets, and other cultural events.
