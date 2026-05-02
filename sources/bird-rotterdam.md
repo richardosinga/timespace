@@ -3,7 +3,7 @@ title: BIRD Rotterdam
 poi: spacetime/bird-rotterdam
 url: https://bird-rotterdam.nl/agenda
 interval_days: 7
-last_checked: null
+last_checked: 2026-05-02
 ---
 Rotterdam's premier jazz and improvised music venue, also hosting soul, funk
 and experimental sounds. Intimate basement club with a loyal following.
