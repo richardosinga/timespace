@@ -1,7 +1,7 @@
 ---
 title: Chocoladefabriek Gouda
 poi: spacetime/europe/netherlands/gouda/chocoladefabriek
-url: https://www.chocoladefabriek.nl/agenda
+url: https://chocoladefabriekgouda.nl/agenda
 interval_days: 14
 last_checked: null
 ---

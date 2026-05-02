@@ -1,7 +1,7 @@
 ---
-title: Uitagenda Gouda
+title: Evenementenkalender Gouda
 poi: europe/netherlands/gouda
-url: https://www.uitingouda.nl/agenda
+url: https://www.gouda.nl/evenementenkalender/
 interval_days: 3
 last_checked: null
 ---
