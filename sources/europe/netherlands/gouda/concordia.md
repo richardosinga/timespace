@@ -1,6 +1,6 @@
 ---
 title: Schouwburg Concordia Gouda
-poi: spacetime/concordia-gouda
+poi: spacetime/europe/netherlands/gouda/concordia
 url: https://www.concordia-gouda.nl/agenda
 interval_days: 14
 last_checked: null
@@ -11,4 +11,4 @@ centre. Programmes cabaret, music, dance, theatre and family shows.
 Look for: concerts, theatre premieres, cabaret evenings and special events
 in the next 60 days. Use category `theatre` or `concert`.
 
-This venue has a shadow POI: `spacetime/concordia-gouda`.
+This venue has a shadow POI: `spacetime/europe/netherlands/gouda/concordia`.
