@@ -1,6 +1,6 @@
 ---
 title: WORM Rotterdam
-poi: spacetime/worm-rotterdam
+poi: spacetime/europe/netherlands/rotterdam/worm
 url: https://worm.org/agenda
 interval_days: 7
 last_checked: null
@@ -12,4 +12,4 @@ and countercultural programming.
 Look for: concerts, film screenings, performances and special events
 in the next 60 days. Use category `concert`, `other` or `exhibition`.
 
-This venue has a shadow POI: `spacetime/worm-rotterdam`.
+This venue has a shadow POI: `spacetime/europe/netherlands/rotterdam/worm`.

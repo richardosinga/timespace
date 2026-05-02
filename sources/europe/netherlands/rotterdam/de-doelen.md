@@ -1,6 +1,6 @@
 ---
 title: De Doelen Rotterdam
-poi: spacetime/de-doelen-rotterdam
+poi: spacetime/europe/netherlands/rotterdam/de-doelen
 url: https://www.dedoelen.nl/agenda
 interval_days: 7
 last_checked: null
@@ -12,4 +12,4 @@ Look for: concerts, recitals and special events in the next 60 days.
 Focus on highlights — opening nights, guest conductors, sold-out shows.
 Use category `concert`.
 
-This venue has a shadow POI: `spacetime/de-doelen-rotterdam`.
+This venue has a shadow POI: `spacetime/europe/netherlands/rotterdam/de-doelen`.
