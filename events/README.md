@@ -38,5 +38,5 @@ Live jazz on the water's edge as the sun sets over the Elbe. Free entry, drinks 
 ## How to add an event
 
 1. Fork this repo
-2. Add a `.md` file in `spacetime_app/events/`
+2. Add a `.md` file in `events/<city-path>/`
 3. Open a pull request

@@ -7,7 +7,7 @@ World66. When a match is found, follow the steps below to migrate references
 and remove the shadow file.
 
 ```bash
-venv/bin/python spacetime_app/todo/check_w66.py
+venv/bin/python todo/check_w66.py
 ```
 
 ## Steps for each matched shadow POI
@@ -23,7 +23,7 @@ venv/bin/python spacetime_app/todo/check_w66.py
    ```
 
 3. **Set `w66_path` in the shadow file**
-   Edit `spacetime_app/pois/<slug>.md` and set:
+   Edit `pois/<slug>.md` and set:
    ```yaml
    w66_path: europe/netherlands/utrecht/tivoli_vredenburg
    ```
@@ -35,21 +35,21 @@ venv/bin/python spacetime_app/todo/check_w66.py
 4. **Migrate event files**
    Find all event files that reference `spacetime/<slug>`:
    ```bash
-   grep -rl "poi: spacetime/<slug>" spacetime_app/events/
+   grep -rl "poi: spacetime/<slug>" events/
    ```
    Update each one: change `poi: spacetime/<slug>` → `poi: <w66_path>`.
    Commit: `Migrate events: spacetime/<slug> → <w66_path>`
 
 5. **Migrate source files**
    ```bash
-   grep -rl "poi: spacetime/<slug>" spacetime_app/sources/
+   grep -rl "poi: spacetime/<slug>" sources/
    ```
    Update each one similarly.
    Commit: `Migrate sources: spacetime/<slug> → <w66_path>`
 
 6. **Delete the shadow file**
    ```bash
-   rm spacetime_app/pois/<slug>.md
+   rm pois/<slug>.md
    ```
    Commit: `Delist shadow POI: <slug>`
 

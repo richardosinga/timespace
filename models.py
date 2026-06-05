@@ -159,7 +159,10 @@ def _load_shadow_venue(poi_path: str) -> Optional[Venue]:
 
     w66_path = post.get("w66_path")
     if w66_path:
-        return _load_w66_venue(w66_path)
+        venue = _load_w66_venue(w66_path)
+        if venue is not None:
+            return venue
+        # W66 not available — fall through to local lat/lng
 
     lat = post.get("latitude") or post.get("lat")
     lng = post.get("longitude") or post.get("lng")
