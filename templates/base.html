@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% load static %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  {% block body_style %}{% endblock %}
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <div id="page">
+    {% block topnav %}{% endblock %}
+    <div id="content">
+      <main id="main">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+    {% block wide_content %}{% endblock %}
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

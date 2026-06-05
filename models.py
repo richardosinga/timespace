@@ -1,7 +1,7 @@
 """
 TimeSpace — event and venue loading from the filesystem.
 
-Events live in spacetime_app/events/*.md with frontmatter:
+Events live in events/*.md with frontmatter:
 
     ---
     title: Late Night at Miniatur Wunderland
@@ -14,8 +14,11 @@ Events live in spacetime_app/events/*.md with frontmatter:
     ---
     Optional extra description.
 
-The `poi` field is a W66 content path. Coordinates, name, image, and snippet
-are loaded from world66_content at render time.
+The `poi` field is either:
+- A shadow POI path: `spacetime/europe/netherlands/rotterdam/bird`
+  → resolved from pois/<path>.md in this repo
+- A W66 content path: `europe/netherlands/amsterdam/paradiso`
+  → resolved from W66 content tree if available (graceful fallback otherwise)
 """
 from __future__ import annotations
 
@@ -28,11 +31,8 @@ from typing import Optional
 import frontmatter
 from django.conf import settings
 
-from world66_content.models import load_page
-
 # ── Constants ────────────────────────────────────────────────────────────────
 
-# POI tags that indicate a likely event venue
 VENUE_TAGS = {
     "concert", "music", "theatre", "theater", "museum", "gallery",
     "market", "festival", "park", "stadium", "cinema", "nightlife",
@@ -41,14 +41,31 @@ VENUE_TAGS = {
 
 
 def _events_dir() -> Path:
-    base = getattr(settings, "SPACETIME_EVENTS_DIR", None)
+    base = getattr(settings, "TIMESPACE_EVENTS_DIR", None)
     if base:
         return Path(base)
-    return Path(settings.BASE_DIR) / "spacetime_app" / "events"
+    return Path(settings.BASE_DIR) / "events"
 
 
 def _pois_dir() -> Path:
-    return Path(settings.BASE_DIR) / "spacetime_app" / "pois"
+    base = getattr(settings, "TIMESPACE_POIS_DIR", None)
+    if base:
+        return Path(base)
+    return Path(settings.BASE_DIR) / "pois"
+
+
+def _w66_content_dir() -> Optional[Path]:
+    """Return W66 content directory if configured, else None."""
+    d = getattr(settings, "WORLD66_CONTENT_DIR", None)
+    if d:
+        p = Path(d)
+        return p if p.exists() else None
+    # Try to get it from world66_content if installed
+    try:
+        from world66_content.models import CONTENT_DIR
+        return CONTENT_DIR
+    except ImportError:
+        return None
 
 
 # ── Dataclasses ──────────────────────────────────────────────────────────────
@@ -67,8 +84,7 @@ def city_display(slug: str) -> str:
 
 @dataclass
 class Venue:
-    """A W66 POI used as an event venue."""
-    path: str            # e.g. europe/germany/hamburg/miniatur_wunderland
+    path: str
     title: str
     lat: float
     lng: float
@@ -96,7 +112,7 @@ class Venue:
 class Event:
     slug: str
     title: str
-    poi_path: str        # W66 content path
+    poi_path: str
     date: date
     time_start: str = ""
     time_end: str = ""
@@ -126,19 +142,12 @@ class Event:
 # ── Loaders ──────────────────────────────────────────────────────────────────
 
 def load_venue(poi_path: str) -> Optional[Venue]:
-    """
-    Load a venue by path. Checks in order:
-    1. Shadow POI (spacetime/<slug>) — path starts with 'spacetime/'
-    2. W66 content tree
-    Returns None if not found or no coordinates.
-    """
     if poi_path.startswith("spacetime/"):
         return _load_shadow_venue(poi_path)
     return _load_w66_venue(poi_path)
 
 
 def _load_shadow_venue(poi_path: str) -> Optional[Venue]:
-    """Load a venue from the spacetime shadow POI list."""
     slug = poi_path.removeprefix("spacetime/")
     path = _pois_dir() / f"{slug}.md"
     if not path.exists():
@@ -148,7 +157,6 @@ def _load_shadow_venue(poi_path: str) -> Optional[Venue]:
     except Exception:
         return None
 
-    # If this shadow POI has been claimed by W66, redirect transparently
     w66_path = post.get("w66_path")
     if w66_path:
         return _load_w66_venue(w66_path)
@@ -170,50 +178,78 @@ def _load_shadow_venue(poi_path: str) -> Optional[Venue]:
 
 
 def _load_w66_venue(poi_path: str) -> Optional[Venue]:
-    """Load a venue from the W66 content tree."""
+    """Load a venue from the W66 content tree. Returns None if W66 not available."""
+    content_dir = _w66_content_dir()
+    if content_dir is None:
+        return None
+
+    # Try world66_content first (richer data), fall back to raw file read
     try:
+        from world66_content.models import load_page
         page = load_page(poi_path)
+        if page is None:
+            return None
+        lat = page.meta.get("latitude") or page.meta.get("lat")
+        lng = page.meta.get("longitude") or page.meta.get("lng")
+        if lat is None or lng is None:
+            return None
+
+        image = page.meta.get("image", "")
+        image_url = ""
+        if image:
+            content_path = content_dir / poi_path
+            for candidate in [content_path.parent / image, content_path / image]:
+                if candidate.exists():
+                    rel = candidate.relative_to(content_dir)
+                    image_url = f"/content-media/{rel}"
+                    break
+
+        return Venue(
+            path=poi_path,
+            title=page.title,
+            lat=float(lat),
+            lng=float(lng),
+            snippet=page.meta.get("snippet", ""),
+            image=image,
+            image_url=image_url,
+            tags=page.meta.get("tags", []) or [],
+        )
+    except ImportError:
+        pass
+
+    # Fallback: read the markdown file directly
+    md_path = content_dir / f"{poi_path}.md"
+    if not md_path.exists():
+        md_path = content_dir / poi_path / "index.md"
+    if not md_path.exists():
+        return None
+    try:
+        post = frontmatter.load(str(md_path))
     except Exception:
         return None
-    if page is None:
-        return None
-    lat = page.meta.get("latitude") or page.meta.get("lat")
-    lng = page.meta.get("longitude") or page.meta.get("lng")
+
+    lat = post.get("latitude") or post.get("lat")
+    lng = post.get("longitude") or post.get("lng")
     if lat is None or lng is None:
         return None
 
-    image = page.meta.get("image", "")
-    image_url = ""
-    if image:
-        from world66_content.models import CONTENT_DIR
-        content_path = CONTENT_DIR / poi_path
-        for candidate in [content_path.parent / image, content_path / image]:
-            if candidate.exists():
-                rel = candidate.relative_to(CONTENT_DIR)
-                image_url = f"/content-media/{rel}"
-                break
-
     return Venue(
         path=poi_path,
-        title=page.title,
+        title=post.get("title", poi_path.split("/")[-1]),
         lat=float(lat),
         lng=float(lng),
-        snippet=page.meta.get("snippet", ""),
-        image=image,
-        image_url=image_url,
-        tags=page.meta.get("tags", []) or [],
+        snippet=post.get("snippet", ""),
+        tags=post.get("tags", []) or [],
     )
 
 
 def load_event(path: Path) -> Optional[Event]:
-    """Parse a single event markdown file."""
     try:
         post = frontmatter.load(str(path))
     except Exception:
         return None
 
     slug = path.stem
-    title = post.get("title", slug)
     poi_path = post.get("poi", "")
     raw_date = post.get("date")
 
@@ -228,7 +264,7 @@ def load_event(path: Path) -> Optional[Event]:
 
     event = Event(
         slug=slug,
-        title=title,
+        title=post.get("title", slug),
         poi_path=poi_path,
         date=raw_date,
         time_start=str(post.get("time_start", "")),
@@ -242,7 +278,6 @@ def load_event(path: Path) -> Optional[Event]:
 
 
 def load_all_events(include_past: bool = False) -> list[Event]:
-    """Load all events, sorted by date ascending. Drops events with no venue."""
     events = []
     for path in sorted(_events_dir().glob("*.md")):
         event = load_event(path)
@@ -270,13 +305,13 @@ def nearby_events(events: list[Event], lat: float, lng: float, radius_km: float 
 
 
 def nearby_venue_pois(lat: float, lng: float, radius_km: float = 25) -> list[Venue]:
-    """
-    Scan the W66 content tree for POIs near the given point that have
-    venue-like tags. Used to populate the map when there are no events.
-    """
-    from world66_content.models import CONTENT_DIR
+    """Scan W66 content for nearby venue POIs. Returns [] if W66 not available."""
+    content_dir = _w66_content_dir()
+    if content_dir is None:
+        return []
+
     venues = []
-    for md in CONTENT_DIR.rglob("*.md"):
+    for md in content_dir.rglob("*.md"):
         try:
             post = frontmatter.load(str(md))
         except Exception:
@@ -292,7 +327,7 @@ def nearby_venue_pois(lat: float, lng: float, radius_km: float = 25) -> list[Ven
             continue
         if haversine_km(lat, lng, float(poi_lat), float(poi_lng)) > radius_km:
             continue
-        path = str(md.relative_to(CONTENT_DIR).with_suffix(""))
+        path = str(md.relative_to(content_dir).with_suffix(""))
         venues.append(Venue(
             path=path,
             title=post.get("title", path),
