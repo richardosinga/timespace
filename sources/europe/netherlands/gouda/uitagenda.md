@@ -1,6 +1,6 @@
 ---
 title: Evenementenkalender Gouda
-poi: europe/netherlands/gouda
+poi: spacetime/europe/netherlands/gouda
 url: https://www.gouda.nl/evenementenkalender/
 interval_days: 3
 last_checked: null

@@ -1,6 +1,6 @@
 ---
 title: Museum Gouda
-poi: europe/netherlands/gouda
+poi: spacetime/europe/netherlands/gouda
 url: https://www.museumgouda.nl/agenda
 interval_days: 14
 last_checked: 2026-05-02

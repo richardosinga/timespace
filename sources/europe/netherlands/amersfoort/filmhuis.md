@@ -1,6 +1,6 @@
 ---
 title: Filmhuis Amersfoort
-poi: europe/netherlands/amersfoort/filmhuis_amersfoort
+poi: spacetime/europe/netherlands/amersfoort/filmhuis
 url: https://www.filmhuis-amersfoort.nl/agenda
 interval_days: 7
 last_checked: null

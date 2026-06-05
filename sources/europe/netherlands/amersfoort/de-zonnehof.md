@@ -1,6 +1,6 @@
 ---
 title: De Zonnehof Amersfoort
-poi: europe/netherlands/amersfoort/de_zonnehof
+poi: spacetime/europe/netherlands/amersfoort/de-zonnehof
 url: https://www.dezonnehof.nl/agenda
 interval_days: 14
 last_checked: null

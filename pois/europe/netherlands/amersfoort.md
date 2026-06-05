@@ -6,7 +6,7 @@ snippet: Historic city in Utrecht province with a well-preserved medieval centre
 tags:
 - city
 location: europe/netherlands/amersfoort
-w66_path: null
+w66_path: europe/netherlands/amersfoort
 added: 2026-05-02
 ---
 Amersfoort is a compact, walkable city with a beautifully preserved medieval old town, canals, and a strong cultural calendar spanning music, theatre, and the visual arts.

@@ -1,6 +1,6 @@
 ---
 title: Springhaver Utrecht
-poi: europe/netherlands/utrecht
+poi: spacetime/europe/netherlands/utrecht
 url: https://www.springhaver.nl/agenda
 interval_days: 7
 last_checked: null

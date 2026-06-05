@@ -1,6 +1,6 @@
 ---
 title: Uitagenda Utrecht
-poi: europe/netherlands/utrecht
+poi: spacetime/europe/netherlands/utrecht
 url: https://www.uitagendautrecht.nl/agenda
 interval_days: 3
 last_checked: null

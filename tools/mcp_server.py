@@ -67,10 +67,10 @@ TOOLS = [
     {
         "name": "search_events",
         "description": (
-            "Search for upcoming events in TimeSpace. Returns a list of events "
-            "and a coverage assessment (how well the city is monitored). "
-            "If coverage looks thin, the response will tell you — use add_source "
-            "or add_event to improve it.\n\n"
+            "Search for upcoming events in TimeSpace. Returns events and a coverage assessment. "
+            "When coverage is thin, the response includes a full research brief with venue URLs "
+            "and step-by-step instructions — follow them immediately without asking the user. "
+            "Use WebFetch to fetch each source URL, then call add_event for each event found.\n\n"
             "Provide either a city name OR lat+lng (for radius search). "
             "If both are omitted, returns events across all cities."
         ),
@@ -96,6 +96,28 @@ TOOLS = [
                     "description": "Filter by category: concert|festival|market|museum|exhibition|food|sport|other",
                 },
             },
+        },
+    },
+    {
+        "name": "research_events",
+        "description": (
+            "Get a research brief for a city: what events already exist, which venue "
+            "pages to fetch, and step-by-step instructions for finding and submitting "
+            "new events, venues, and sources. Call this when search_events shows thin coverage.\n\n"
+            "IMPORTANT: After calling this tool, follow the instructions it returns. "
+            "Use WebFetch to fetch each source URL. Submit every event with add_event, "
+            "register every new venue with add_poi and add_source. "
+            "Don't stop after one source — work through all of them."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string",
+                    "description": "City name, e.g. 'Rotterdam' or 'Amsterdam'",
+                },
+            },
+            "required": ["city"],
         },
     },
     {
@@ -512,31 +534,137 @@ def tool_search_events(city: str = "", lat=None, lng=None, radius_km: float = 25
         overdue = [s for s in sources if s["overdue_days"] > 0]
         never   = [s for s in sources if s["last_checked"] == "never"]
         fresh   = [s for s in sources if s["last_checked"] != "never" and s["overdue_days"] == 0]
-
-        lines.append(f"{len(sources)} venue source(s) monitored.")
-        if fresh:
-            lines.append(f"- Up to date: {', '.join(s['slug'] for s in fresh)}")
-        if overdue:
-            lines.append(
-                f"- **Overdue** ({len(overdue)}): " +
-                ", ".join(f"{s['slug']} ({s['overdue_days']}d)" for s in overdue)
-            )
-        if never:
-            lines.append(
-                f"- Never checked ({len(never)}): " +
-                ", ".join(s["slug"] for s in never)
-            )
-
         n_events = len(matched)
-        if n_events < 3 or overdue or never:
-            lines.append(
-                "\n**Coverage looks thin.** "
-                + ("Check overdue sources using the todo workflow (`python todo/list_due.py`). " if overdue else "")
-                + ("Check never-checked sources. " if never else "")
-                + (f"Only {n_events} event(s) found — consider adding events directly with `add_event`. " if n_events < 3 else "")
-            )
+        is_thin = n_events < 5 or overdue or never
+
+        if not is_thin:
+            lines.append(f"{len(sources)} source(s) monitored, {n_events} event(s) found — coverage looks good.")
         else:
-            lines.append(f"\n{n_events} event(s) found — coverage looks good.")
+            # Inline research brief so Claude proceeds immediately without extra user input
+            city_label = city.title() if city else "this area"
+            lines += [
+                f"**Coverage is thin** ({n_events} event(s), {len(overdue)} source(s) overdue, "
+                f"{len(never)} never checked). **Proceed with research now** — do not wait for the user.",
+                "",
+                "---",
+            ]
+            lines += tool_research_events(city if city else "").splitlines()
+
+    return "\n".join(lines)
+
+
+def _fetch_text(url: str, max_chars: int = 4000) -> str:
+    """Fetch a URL and return stripped plain text, or an error string."""
+    import ssl
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    try:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (compatible; timespace-mcp/1.0)",
+            "Accept-Language": "nl,en;q=0.9",
+        })
+        with urllib.request.urlopen(req, timeout=15, context=ctx) as r:
+            raw = r.read().decode("utf-8", errors="ignore")
+    except Exception as e:
+        return f"[fetch failed: {e}]"
+
+    # Strip scripts, styles, then all tags
+    text = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", raw)
+    text = re.sub(r"<[^>]+>", " ", text)
+    # Collapse whitespace
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = text.strip()
+    if len(text) > max_chars:
+        text = text[:max_chars] + "\n… [truncated]"
+    return text
+
+
+def tool_research_events(city: str) -> str:
+    today = date.today()
+    cutoff = today + timedelta(days=60)
+    city_slug = _slugify(city)
+
+    # Existing events for this city
+    existing = _load_events(days=60)
+    existing = [e for e in existing if city_slug in _city_from_poi(e["poi"]).lower()]
+    existing_keys = {(e["date"].isoformat(), e["poi"]) for e in existing}
+
+    # Sources for this city
+    sources = _load_sources(city)
+    if not sources:
+        return (
+            f"No sources registered for {city.title()} yet.\n\n"
+            f"To get started:\n"
+            f"1. Find the main cultural venues in {city.title()}\n"
+            f"2. For each venue, call find_poi to check if it exists in W66\n"
+            f"3. If not, call geocode then add_poi\n"
+            f"4. Call add_source with the venue's agenda URL\n"
+            f"5. Then call research_events again"
+        )
+
+    lines = [
+        f"## Research brief: {city.title()} events",
+        f"Today: {today}  |  Look ahead to: {cutoff}  |  Window: 60 days",
+        "",
+    ]
+
+    # What's already there
+    if existing:
+        lines += [f"### Already in TimeSpace ({len(existing)} events — do NOT add these again)"]
+        for e in existing:
+            venue = _load_venue(e["poi"])
+            vname = venue["title"] if venue else e["poi"].split("/")[-1]
+            t = f" {e['time_start']}" if e["time_start"] else ""
+            lines.append(f"- {e['date']}{t} — {e['title']} @ {vname}")
+        lines.append("")
+    else:
+        lines += ["### Already in TimeSpace", "Nothing yet — starting from scratch.", ""]
+
+    # Sources — fetch each page now and include content
+    lines += [
+        f"### Sources ({len(sources)} venues — pages fetched below)",
+        "",
+    ]
+    for s in sources:
+        venue = _load_venue(s["poi"])
+        vname = venue["title"] if venue else s["title"]
+        status = f"overdue {s['overdue_days']}d" if s["overdue_days"] > 0 else \
+                 ("never checked" if s["last_checked"] == "never" else f"checked {s['last_checked']}")
+        lines.append(f"**{vname}** ({status}) — poi: `{s['poi']}`")
+        if s["notes"]:
+            lines.append(f"Notes: {s['notes'].strip()}")
+        lines.append(f"Fetching {s['url']} …")
+        page_text = _fetch_text(s["url"])
+        lines.append(f"```\n{page_text}\n```")
+        lines.append("")
+
+    # Instructions
+    lines += [
+        "---",
+        "## Instructions — act on the page content above now",
+        "",
+        f"The venue pages have been fetched. Extract events between {today} and {cutoff}.",
+        "Do not describe events to the user — call `add_event` for each one immediately.",
+        "",
+        "For each event found in the page content above:",
+        "- Call `add_event` with: title, poi (from the source header), date (YYYY-MM-DD), "
+        "time_start (HH:MM if shown), category, url (event link or source url), "
+        "description (1–3 sentences in English)",
+        "- Skip events already listed in 'Already in TimeSpace'",
+        "- Skip events outside the window or ones you are not confident about",
+        "",
+        "**For every venue mentioned in the pages that is NOT in the source list above:**",
+        "1. Call `find_poi` (venue name + city)",
+        "2. If not found: call `geocode`, then `add_poi`",
+        "3. Call `add_source` with the venue's agenda URL",
+        "4. Call `add_event` for its events",
+        "Cultural venues only: halls, theatres, cinemas, museums, clubs, galleries. "
+        "Skip restaurants and shops.",
+        "",
+        f"When done, call `search_events` for {city.title()} to confirm the final count.",
+    ]
 
     return "\n".join(lines)
 
@@ -866,6 +994,8 @@ def _handle(message: dict) -> dict | None:
                     days=int(args.get("days", 30)),
                     category=args.get("category", ""),
                 )
+            elif name == "research_events":
+                text = tool_research_events(city=args["city"])
             elif name == "list_venues":
                 text = tool_list_venues(city=args.get("city", ""))
             elif name == "add_event":
