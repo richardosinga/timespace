@@ -2,6 +2,7 @@
 Standalone TimeSpace settings.
 Run with: python manage.py runserver
 """
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,5 +49,6 @@ TIMESPACE_STANDALONE = True
 TIMESPACE_EVENTS_DIR = BASE_DIR / "events"
 TIMESPACE_POIS_DIR = BASE_DIR / "pois"
 
-# Optional: point at a W66 content checkout to resolve W66 POI paths
-# WORLD66_CONTENT_DIR = "/path/to/world66/content"
+# W66 content checkout — set WORLD66_CONTENT_DIR env var or defaults to sibling world66 repo
+_w66_default = BASE_DIR.parent / "world66" / "content"
+WORLD66_CONTENT_DIR = Path(os.environ.get("WORLD66_CONTENT_DIR", str(_w66_default)))

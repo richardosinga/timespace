@@ -3,8 +3,8 @@
 Print sources that are due for a check, sorted by most overdue first.
 
 Usage:
-    venv/bin/python spacetime_app/todo/list_due.py
-    venv/bin/python spacetime_app/todo/list_due.py --all   # include not-yet-due
+    python todo/list_due.py
+    python todo/list_due.py --all   # include not-yet-due
 """
 import sys
 from datetime import date, timedelta
@@ -20,7 +20,7 @@ def main():
     today = date.today()
     rows = []
 
-    for path in sorted(SOURCES_DIR.glob("*.md")):
+    for path in sorted(SOURCES_DIR.rglob("*.md")):
         try:
             post = frontmatter.load(str(path))
         except Exception as e:

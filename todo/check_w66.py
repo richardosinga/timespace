@@ -2,12 +2,12 @@
 """
 Check shadow POIs against W66 content to find ones that now exist there.
 
-For each shadow POI in spacetime_app/pois/, looks for a W66 POI within
-100m with a similar title. Prints matches so an agent can delist them.
+For each shadow POI in pois/, looks for a W66 POI within 100m with a similar
+title. Prints matches so an agent can delist them.
 
 Usage:
-    venv/bin/python spacetime_app/todo/check_w66.py
-    venv/bin/python spacetime_app/todo/check_w66.py --verbose
+    python todo/check_w66.py
+    python todo/check_w66.py --verbose
 """
 import sys
 import math
@@ -15,9 +15,9 @@ from pathlib import Path
 
 import frontmatter
 
-BASE = Path(__file__).parent.parent.parent
-POIS_DIR = BASE / "spacetime_app" / "pois"
-CONTENT_DIR = BASE / "content"
+BASE = Path(__file__).parent.parent
+POIS_DIR = BASE / "pois"
+CONTENT_DIR = BASE.parent / "world66" / "content"
 VERBOSE = "--verbose" in sys.argv
 
 
@@ -133,7 +133,7 @@ def main():
     if not matches:
         print("No matches found — shadow POIs not yet in W66.")
     else:
-        print(f"Found {len(matches)} match(es). See spacetime_app/todo/DELIST.md for next steps.")
+        print(f"Found {len(matches)} match(es). See todo/DELIST.md for next steps.")
 
 
 if __name__ == "__main__":
