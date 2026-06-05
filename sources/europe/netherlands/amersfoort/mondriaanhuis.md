@@ -1,6 +1,6 @@
 ---
 title: Mondriaanhuis Amersfoort
-poi: europe/netherlands/amersfoort/mondriaanhuis
+poi: spacetime/europe/netherlands/amersfoort/mondriaanhuis
 url: https://www.mondriaanhuis.nl/bezoek/activiteiten
 interval_days: 14
 last_checked: null

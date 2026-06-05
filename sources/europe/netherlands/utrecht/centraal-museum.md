@@ -1,6 +1,6 @@
 ---
 title: Centraal Museum Utrecht
-poi: europe/netherlands/utrecht
+poi: spacetime/europe/netherlands/utrecht
 url: https://www.centraalmuseum.nl/nl/bezoek/agenda
 interval_days: 14
 last_checked: null

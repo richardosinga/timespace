@@ -1,6 +1,6 @@
 ---
 title: Theater Kikker Utrecht
-poi: europe/netherlands/utrecht
+poi: spacetime/europe/netherlands/utrecht
 url: https://www.theaterkikker.nl/programma
 interval_days: 7
 last_checked: null

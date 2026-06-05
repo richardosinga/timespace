@@ -1,6 +1,6 @@
 ---
 title: Kunsthal Rotterdam
-poi: europe/netherlands/rotterdam
+poi: spacetime/europe/netherlands/rotterdam
 url: https://www.kunsthal.nl/agenda
 interval_days: 14
 last_checked: 2026-05-02

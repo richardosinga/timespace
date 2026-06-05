@@ -1,6 +1,6 @@
 ---
 title: Uitagenda Rotterdam
-poi: europe/netherlands/rotterdam
+poi: spacetime/europe/netherlands/rotterdam
 url: https://www.uitagendarotterdam.nl/agenda/
 interval_days: 3
 last_checked: null

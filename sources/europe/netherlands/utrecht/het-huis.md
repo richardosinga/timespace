@@ -1,6 +1,6 @@
 ---
 title: Het Huis Utrecht
-poi: europe/netherlands/utrecht
+poi: spacetime/europe/netherlands/utrecht
 url: https://www.hethuisutrecht.nl/agenda
 interval_days: 7
 last_checked: null
