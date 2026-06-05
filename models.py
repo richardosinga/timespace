@@ -71,12 +71,14 @@ def _w66_content_dir() -> Optional[Path]:
 # ── Dataclasses ──────────────────────────────────────────────────────────────
 
 def _city_from_path(poi_path: str) -> str:
+    """Extract city slug from a poi path, e.g. 'europe/netherlands/rotterdam/bird' → 'rotterdam'."""
     path = poi_path.removeprefix("spacetime/")
     parts = path.split("/")
     return parts[2] if len(parts) >= 3 else ""
 
 
 def city_display(slug: str) -> str:
+    """'den-haag' → 'Den Haag', 'rotterdam' → 'Rotterdam'."""
     return slug.replace("-", " ").replace("_", " ").title()
 
 
