@@ -3,7 +3,7 @@ title: Uitagenda Rotterdam
 poi: europe/netherlands/rotterdam
 url: https://www.uitagendarotterdam.nl/agenda/
 interval_days: 3
-last_checked: null
+last_checked: 2026-06-05
 ---
 The main city-wide event agenda for Rotterdam. Lists concerts, theatre,
 festivals, markets, exhibitions and more across all venues.
